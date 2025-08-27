@@ -85,56 +85,31 @@
 //   parent: document.body,
 // });
 
-window.Vim = Vim;
+// window.Vim = Vim;
+
+// Vim.defineAction("forwardsearch", (view) => {
+//   const { state, dispatch } = view;
+//   console.log(view);
+
+//   console.log("normal mode");
+// });
+// Vim.mapCommand("za", "action", "forwardsearch");
 
 // Vim.defineAction("togglefold", toggleFold);
 // Vim.mapCommand("Tab", "action", "togglefold");
 
 // indent wrap
 
-// CodeMirror as CM
-import { vim, Vim, getCM } from "@replit/codemirror-vim";
+import { vim, Vim } from "@replit/codemirror-vim";
 
-import { EditorView } from "codemirror";
+import { basicSetup, EditorView } from "codemirror";
 // import { html } from "@codemirror/lang-html";
 import { markdown } from "@codemirror/lang-markdown";
 
 import { Decoration } from "@codemirror/view";
-import { ViewUpdate, ViewPlugin, DecorationSet } from "@codemirror/view";
+// import { ViewUpdate, ViewPlugin, DecorationSet } from "@codemirror/view";
 import { StateField } from "@codemirror/state";
 import { syntaxTree } from "@codemirror/language";
-
-// basicsetup
-import {
-  keymap,
-  highlightSpecialChars,
-  drawSelection,
-  highlightActiveLine,
-  dropCursor,
-  rectangularSelection,
-  crosshairCursor,
-  lineNumbers,
-  highlightActiveLineGutter,
-} from "@codemirror/view";
-import { Extension, EditorState } from "@codemirror/state";
-import {
-  defaultHighlightStyle,
-  syntaxHighlighting,
-  indentOnInput,
-  bracketMatching,
-  foldGutter,
-  foldKeymap,
-} from "@codemirror/language";
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
-import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
-import {
-  autocompletion,
-  completionKeymap,
-  closeBrackets,
-  closeBracketsKeymap,
-} from "@codemirror/autocomplete";
-import { lintKeymap } from "@codemirror/lint";
-import { KeyBinding } from "@codemirror/view";
 
 window.syntaxTree = syntaxTree;
 // paste in console
@@ -188,18 +163,18 @@ export const indentedLineWrap = StateField.define({
   provide: (f) => EditorView.decorations.from(f),
 });
 
-//   const theme = EditorView.theme({
-//     ".indented-wrapped-line": {
-//       borderLeft: "transparent solid calc(var(--indented))",
-//     },
-//   // ".indented-wrapped-line:before": {
-//   //   content: '""',
-//   //   marginLeft: "calc(-1 * var(--indented))",
-//   // },
-//   ".cm-gutters, .cm-activeLineGutter": {
-//     background: "transparent",
-//   },
-// });
+const theme = EditorView.theme({
+  ".indented-wrapped-line": {
+    borderLeft: "transparent solid calc(var(--indented))",
+  },
+  // ".indented-wrapped-line:before": {
+  //   content: '""',
+  //   marginLeft: "calc(-1 * var(--indented))",
+  // },
+  ".cm-gutters, .cm-activeLineGutter": {
+    background: "transparent",
+  },
+});
 
 // const doc = `  <!-- this line is deliberately indented without problems :) --><!doctype html>
 // <body>
@@ -259,137 +234,16 @@ kljhygyuguyd`;
 //   }
 // );
 
-function focusChange(parent) {
-  return EditorView.focusChangeEffect.of((state, focusing) => {
-    if (focusing) {
-      focused = parent;
-    } else {
-      focused = null;
-    }
-  });
-}
-
-// let oldJ = Vim.findKey(CM, "j");
-Vim.defineAction("moveOut", (view, args, vim) => {
-  const { state, dispatch } = view;
-  // debugger;
-  // state.doc.lineAt(state.selection.main.head).number
-  //
-  // view.state.doc;
-  // view.state.doc;
-  let cursorAt = view.cm6.state.doc.lineAt(
-    view.cm6.state.selection.main.head
-  ).number;
-  let atEnd = cursorAt === view.cm6.state.doc.lines;
-  // console.log(view, state, dispatch);
-  // console.log("normal mode");
-  if (atEnd) {
-    // focusParent();
-    focused.focus(); // this is the parent
-    // window.main.focus();
-  } else {
-    console.log("dispatched");
-    // oldJ();
-    debugger;
-    Vim.handleKey(view, "j");
-    // debugger;
-    // view.cm6.dispatch(view, view.state.vim, {
-    //   keys: "",
-    //   type: "motion",
-    //   motion: "moveByLines",
-    //   motionArgs: { forward: true, linewise: true },
-    // });
-  }
+new EditorView({
+  doc,
+  extensions: [
+    // EditorView.lineWrapping,
+    basicSetup,
+    indentedLineWrap,
+    theme,
+    vim(),
+    // html(),
+    markdown(),
+  ],
+  parent: document.body,
 });
-Vim.mapCommand("j", "action", "moveOut");
-
-export const moveOutCmd /*: StateCommand*/ = ({ state, dispatch }) => {
-  console.log("j pressed");
-  debugger;
-  if (state.readOnly) return false;
-  let conf = config(state, state.selection.main.head);
-  let tokens = conf.brackets || defaults.brackets;
-  let dont = null,
-    changes = state.changeByRange((range) => {
-      if (range.empty) {
-        let before = prevChar(state.doc, range.head);
-        for (let token of tokens) {
-          if (
-            token == before &&
-            nextChar(state.doc, range.head) == closing(codePointAt(token, 0))
-          )
-            return {
-              changes: {
-                from: range.head - token.length,
-                to: range.head + token.length,
-              },
-              range: EditorSelection.cursor(range.head - token.length),
-            };
-        }
-      }
-      return { range: (dont = range) };
-    });
-  if (!dont)
-    dispatch(
-      state.update(changes, {
-        scrollIntoView: true,
-        userEvent: "delete.backward",
-      })
-    );
-  return !dont;
-};
-
-const moveOutKeyMap = [{ key: "j", run: moveOutCmd }];
-
-export const basicSetup = (() => [
-  // lineNumbers(),
-  // highlightActiveLineGutter(),
-  // highlightSpecialChars(),
-  history(),
-  // foldGutter(),
-  drawSelection(),
-  dropCursor(),
-  EditorState.allowMultipleSelections.of(true),
-  indentOnInput(),
-  syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-  bracketMatching(),
-  closeBrackets(),
-  autocompletion(),
-  // rectangularSelection(),
-  // crosshairCursor(),
-  // highlightActiveLine(),
-  highlightSelectionMatches(),
-  keymap.of([
-    moveOutKeyMap,
-    ...closeBracketsKeymap,
-    ...defaultKeymap,
-    ...searchKeymap,
-    ...historyKeymap,
-    // ...foldKeymap,
-    ...completionKeymap,
-    // ...lintKeymap,
-  ]),
-])();
-
-function createEditor(txt, parent) {
-  let editor = new EditorView({
-    doc: txt,
-    extensions: [
-      // EditorView.lineWrapping,
-      basicSetup,
-      focusChange(parent),
-      // indentedLineWrap,
-      // theme,
-      vim(),
-      // html(),
-      markdown(),
-    ],
-    // parent: document.body,
-    parent,
-  });
-  editor._parent = parent;
-  return editor;
-}
-
-window.createEditor = createEditor;
-initTree();
