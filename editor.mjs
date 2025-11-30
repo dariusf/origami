@@ -14,7 +14,7 @@ import {
   // keymap,
   highlightSpecialChars,
   drawSelection,
-  highlightActiveLine,
+  // highlightActiveLine,
   dropCursor,
   rectangularSelection,
   crosshairCursor,
@@ -239,7 +239,7 @@ const basicSetup = (() => [
   autocompletion(),
   rectangularSelection(),
   crosshairCursor(),
-  highlightActiveLine(),
+  // highlightActiveLine(),
   highlightSelectionMatches(),
   keymap.of([
     ...closeBracketsKeymap,
