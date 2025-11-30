@@ -196,13 +196,11 @@ a very very very very very very very very very very very very very very very ver
 
 - [X] vite
 - [X] focus on page load
-- [ ] markdown bullets
-- [ ] markdown checkbox trigger
+- [ ] gj and gk for vim
 - [ ] press tab to fold. look at how indent tab works
 - [ ] a first widget
 - [ ] a dynamic widget, which has a user-defined define interpretation for its content
 - [ ] define interpretation for arbitrary elements, like list text. domain-specific apps
-- [ ] gj and gk for vim
 - [ ] BUG vim w moving into fold opens it, should act like l where it can't move
 - [ ] structure editing, move up and down
 - [ ] shift tab to cycle vis
@@ -220,6 +218,10 @@ a very very very very very very very very very very very very very very very ver
 - [ ] hiding links
 - [ ] packaging using tauri for native use
 - [ ] web version also
+- [ ] scrolloff
+- [ ] markdown bullets
+- [ ] markdown checkbox trigger
+- [ ] theme cursor colour
 
 ## widget ideas
 
