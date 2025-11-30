@@ -104,7 +104,7 @@ import { basicSetup, EditorView } from "codemirror";
 // import { html } from "@codemirror/lang-html";
 import { markdown } from "@codemirror/lang-markdown";
 
-import { Decoration, keymap } from "@codemirror/view";
+import { Decoration, keymap, scrollPastEnd } from "@codemirror/view";
 // import { ViewUpdate, ViewPlugin, DecorationSet } from "@codemirror/view";
 import { StateField } from "@codemirror/state";
 import { syntaxTree } from "@codemirror/language";
@@ -196,7 +196,7 @@ a very very very very very very very very very very very very very very very ver
 
 - [X] vite
 - [X] focus on page load
-- [ ] gj and gk for vim
+- [X] gj and gk for vim. done in forked vim plugin
 - [ ] press tab to fold. look at how indent tab works
 - [ ] a first widget
 - [ ] a dynamic widget, which has a user-defined define interpretation for its content
@@ -291,6 +291,8 @@ const editor = new EditorView({
     vim(),
     // html(),
     markdown(),
+    // adds a ridiculous number of lines
+    // scrollPastEnd(),
   ],
   parent: document.body,
 });
@@ -298,3 +300,7 @@ const editor = new EditorView({
 document.body.onload = function () {
   editor.focus();
 };
+
+// totally useless
+// window.vim = vim;
+// window.Vim = Vim;
