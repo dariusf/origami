@@ -194,25 +194,32 @@ a very very very very very very very very very very very very very very very ver
 
 ## todos
 
-- press tab to fold. look at how indent tab works
-- a first widget
-- a dynamic widget, which has a user-defined define interpretation for its content
-- define interpretation for arbitrary elements, like list text. domain-specific apps
-- gj and gk for vim
-- BUG vim w moving into fold opens it, should act like l where it can't move
-- structure editing, move up and down
-- shift tab to cycle vis
-- thing at point to test the ast
-- enable line wrapping
-- org indent based on the existing indent solution https://discuss.codemirror.net/t/making-codemirror-6-respect-indent-for-wrapped-lines/2881
-- org indent for lists
-- org indent for headings
-- theme does not control normal mode it seems
-- remove the line numbers
-- look into storage options. how durable is local storage etc
-- multiple buffers https://discuss.codemirror.net/t/cm6-multiple-docs-with-their-own-histories/3220/6
-- narrowing
-- hiding links
+- [X] vite
+- [X] focus on page load
+- [ ] markdown bullets
+- [ ] markdown checkbox trigger
+- [ ] press tab to fold. look at how indent tab works
+- [ ] a first widget
+- [ ] a dynamic widget, which has a user-defined define interpretation for its content
+- [ ] define interpretation for arbitrary elements, like list text. domain-specific apps
+- [ ] gj and gk for vim
+- [ ] BUG vim w moving into fold opens it, should act like l where it can't move
+- [ ] structure editing, move up and down
+- [ ] shift tab to cycle vis
+- [ ] thing at point to test the ast
+- [ ] enable line wrapping
+- [ ] org indent based on the existing indent solution https://discuss.codemirror.net/t/making-codemirror-6-respect-indent-for-wrapped-lines/2881
+- [ ] org indent for lists
+- [ ] org indent for headings
+- [ ] theme does not control normal mode it seems
+- [ ] remove the line numbers
+- [ ] look into storage options. how durable is local storage etc
+- [ ] multiple buffers https://discuss.codemirror.net/t/cm6-multiple-docs-with-their-own-histories/3220/6
+- [ ] narrowing
+  - [ ] go inside an extension lol
+- [ ] hiding links
+- [ ] packaging using tauri for native use
+- [ ] web version also
 
 ## widget ideas
 
@@ -267,7 +274,7 @@ kljhygyuguyd`;
 //   }
 // );
 
-new EditorView({
+const editor = new EditorView({
   doc,
   extensions: [
     // dracula,
@@ -285,3 +292,7 @@ new EditorView({
   ],
   parent: document.body,
 });
+
+document.body.onload = function () {
+  editor.focus();
+};

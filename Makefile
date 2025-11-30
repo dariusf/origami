@@ -1,4 +1,6 @@
 
 .PHONY: all
 all:
-	./build.sh
+# 	./build.sh
+# npm install -D vite
+	npx vite
