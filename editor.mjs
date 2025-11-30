@@ -60,7 +60,8 @@ import {
 } from "@codemirror/autocomplete";
 import { lintKeymap } from "@codemirror/lint";
 
-import { checkboxPlugin } from "./checkbox.mjs";
+import { checkboxPlugin } from "./experiments/checkbox.mjs";
+import { placeholders } from "./experiments/placeholder.mjs";
 
 window.syntaxTree = syntaxTree;
 // paste in console
@@ -146,7 +147,7 @@ a very very very very very very very very very very very very very very very ver
 - [X] vite
 - [X] focus on page load
 - [X] gj and gk for vim. done in forked vim plugin
-- [ ] remove the line numbers
+- [X] remove the line numbers
 - [ ] press tab to fold. look at how indent tab works
 - [ ] a first widget
   - [ ] a dynamic widget, which has a user-defined interpretation for its content
@@ -157,6 +158,7 @@ a very very very very very very very very very very very very very very very ver
 
 ## beyond
 
+- [ ] stop cursor from flashing
 - [ ] thing at point to test the ast
 - [ ] structural editing start. move list items up and down
 - [ ] BUG vim w moving into fold opens it, should act like l where it can't move
@@ -209,7 +211,7 @@ const basicSetup = (() => [
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
   syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-  bracketMatching(),
+  // bracketMatching(),
   closeBrackets(),
   autocompletion(),
   rectangularSelection(),
@@ -245,6 +247,7 @@ const editor = new EditorView({
     // adds a ridiculous number of lines
     // scrollPastEnd(),
     // checkboxPlugin,
+    // placeholders,
   ],
   parent: document.body,
 });
