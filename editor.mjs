@@ -90,7 +90,6 @@ a very very very very very very very very very very very very very very very ver
 
 ## beyond
 
-- [ ] stop cursor from flashing
 - [ ] thing at point to test the ast
   - [ ] structural editing start. move list items up and down
   - [ ] markdown checkbox trigger
@@ -143,7 +142,7 @@ const basicSetup = (() => [
   highlightSpecialChars(),
   history(),
   foldGutter(),
-  drawSelection(),
+  drawSelection({ cursorBlinkRate: 0 }),
   dropCursor(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
