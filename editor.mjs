@@ -62,6 +62,8 @@ import { lintKeymap } from "@codemirror/lint";
 
 import { checkboxPlugin } from "./experiments/checkbox.mjs";
 import { placeholders } from "./experiments/placeholder.mjs";
+import { obsidian } from "./experiments/obsidian.mjs";
+import { bullets } from "./experiments/bullets.mjs";
 
 // window.syntaxTree = syntaxTree;
 // paste in console
@@ -79,20 +81,24 @@ a very very very very very very very very very very very very very very very ver
 - [X] remove the line numbers
 - [ ] press tab to fold. look at how indent tab works
 - [X] a first widget
+- [X] markdown bullets
 - [ ] obsidian-like widgets
 - [ ] electron packaging
   - [ ] load file
   - [ ] save file
+  - [ ] auto save
 
 ## beyond
 
 - [ ] stop cursor from flashing
 - [ ] thing at point to test the ast
   - [ ] structural editing start. move list items up and down
+  - [ ] markdown checkbox trigger
 - [ ] date widget
 - [ ] a dynamic widget, which has a user-defined interpretation for its content, taken from another part of doc
 - [ ] distraction-free mode
 - [ ] BUG vim w moving into fold opens it, should act like l where it can't move
+- [ ] BUG vim dj does not work properly
 - [ ] shift tab to cycle vis
 - [ ] org indent based on the existing indent solution https://discuss.codemirror.net/t/making-codemirror-6-respect-indent-for-wrapped-lines/2881
 - [ ] org indent for lists
@@ -104,8 +110,6 @@ a very very very very very very very very very very very very very very very ver
   - [ ] go inside an extension lol
 - [ ] hiding links
 - [ ] scrolloff
-- [ ] markdown bullets
-- [ ] markdown checkbox trigger
 - [ ] theme does not control normal mode it seems
 - [ ] which-key?
 - [ ] command palette?
@@ -173,7 +177,7 @@ const editor = new EditorView({
     // https://codemirror.net/examples/tab/
     keymap.of([indentWithTab]),
     // indentedLineWrap,
-    theme,
+    // theme,
     vim(),
     // html(),
     markdown({ base: markdownLanguage }), // GFM
@@ -181,6 +185,9 @@ const editor = new EditorView({
     // scrollPastEnd(),
     // checkboxPlugin,
     // placeholders,
+
+    // obsidian,
+    bullets,
   ],
   parent: document.body,
 });
