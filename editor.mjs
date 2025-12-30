@@ -64,6 +64,11 @@ import { placeholders } from "./experiments/placeholder.mjs";
 import { obsidian } from "./experiments/obsidian.mjs";
 import { bullets } from "./experiments/bullets.mjs";
 
+import {
+  noDeletionFirstLast,
+  preventDeletion,
+} from "./experiments/txfilter.mjs";
+
 // window.syntaxTree = syntaxTree;
 // paste in console
 // syntaxTree(state).iterate({from:0, to:100, enter: node => console.log(node.name, node.from, node.to)})
@@ -137,7 +142,8 @@ const editor = new EditorView({
     // scrollPastEnd(),
     // checkboxPlugin,
     placeholders,
-    // uppercaseFilter,
+    // noDeletionFirstLast,
+    // preventDeletion,
 
     // obsidian,
     // bullets,
