@@ -1,5 +1,7 @@
 import { Decoration, WidgetType, ViewPlugin } from "@codemirror/view";
 
+import { syntaxTree } from "@codemirror/language";
+
 class CheckboxWidget extends WidgetType {
   constructor(/* readonly */ checked /*: boolean */) {
     super();

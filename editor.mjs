@@ -26,7 +26,6 @@ import {
 // import { ViewUpdate, ViewPlugin, DecorationSet } from "@codemirror/view";
 import { StateField, EditorState } from "@codemirror/state";
 import {
-  syntaxTree,
   defaultHighlightStyle,
   syntaxHighlighting,
   indentOnInput,
@@ -72,54 +71,6 @@ import { bullets } from "./experiments/bullets.mjs";
 let doc = `# todos
 a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long line
 
-## mvp
-
-- [X] enable line wrapping
-- [X] vite
-- [X] focus on page load
-- [X] gj and gk for vim. done in forked vim plugin
-- [X] remove the line numbers
-- [ ] press tab to fold. look at how indent tab works
-- [X] a first widget
-- [X] markdown bullets
-- [ ] obsidian-like widgets
-- [ ] electron packaging
-  - [ ] load file
-  - [ ] save file
-  - [ ] auto save
-
-## beyond
-
-- [ ] thing at point to test the ast
-  - [ ] structural editing start. move list items up and down
-  - [ ] markdown checkbox trigger
-- [ ] date widget
-- [ ] a dynamic widget, which has a user-defined interpretation for its content, taken from another part of doc
-- [ ] distraction-free mode
-- [ ] BUG vim w moving into fold opens it, should act like l where it can't move
-- [ ] BUG vim dj does not work properly
-- [ ] shift tab to cycle vis
-- [ ] org indent based on the existing indent solution https://discuss.codemirror.net/t/making-codemirror-6-respect-indent-for-wrapped-lines/2881
-- [ ] org indent for lists
-- [ ] org indent for headings
-- [ ] look into storage options. how durable is local storage etc
-- [ ] tabs/multiple buffers https://discuss.codemirror.net/t/cm6-multiple-docs-with-their-own-histories/3220/6
-- [ ] transclusion like obsidian
-- [ ] narrowing
-  - [ ] go inside an extension lol
-- [ ] hiding links
-- [ ] scrolloff
-- [ ] theme does not control normal mode it seems
-- [ ] which-key?
-- [ ] command palette?
-
-## widget ideas
-
-- list keywords
-- list tags, to sort by
-- dates which count days
-- dynamic generic widget, prob an inline code with keyword, with a json object inside for the data
-
 ## asd
 aasd
 ### asd
@@ -135,6 +86,8 @@ doc = `
 - [ ] a
 - [ ] b
 `;
+
+doc = `Move your cursor into the following text: [[a]]`;
 
 const basicSetup = (() => [
   // lineNumbers(),
@@ -183,10 +136,11 @@ const editor = new EditorView({
     // adds a ridiculous number of lines
     // scrollPastEnd(),
     // checkboxPlugin,
-    // placeholders,
+    placeholders,
+    // uppercaseFilter,
 
     // obsidian,
-    bullets,
+    // bullets,
   ],
   parent: document.body,
 });
