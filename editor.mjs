@@ -102,8 +102,8 @@ Press Tab while your cursor is on a heading to fold it.
 
 When not on a heading, Tab indents/dedents (try it here).
 
-- [ ] a
-- [ ] b
+- [ ] This is a checkbox list
+- [ ] Press Ctrl+C with your cursor on an item to toggle its checkbox
 `;
 
 const basicSetup = (() => [
@@ -162,6 +162,37 @@ export function foldConditionally(indent) {
   };
 }
 
+window.debugAST = function (node) {};
+
+export const checkListItem = (view) => {
+  const { state, dispatch } = view;
+  const pos = state.selection.ranges[0].from + 1;
+  const tree = syntaxTree(state).resolveInner(pos);
+  const kind = tree.type.name;
+  // console.log(tree);
+
+  function handleTaskMarker(tree) {
+    const checked =
+      view.state.doc.sliceString(tree.from + 1, tree.to - 1) == "X";
+    if (checked) {
+      dispatch({
+        changes: { from: tree.from + 1, to: tree.to - 1, insert: " " },
+      });
+    } else {
+      dispatch({
+        changes: { from: tree.from + 1, to: tree.to - 1, insert: "X" },
+      });
+    }
+  }
+
+  if (kind === "TaskMarker") {
+    handleTaskMarker(tree);
+  } else if (kind === "Task") {
+    handleTaskMarker(tree.firstChild);
+  }
+  return true;
+};
+
 const editor = new EditorView({
   doc,
   extensions: [
@@ -181,6 +212,10 @@ const editor = new EditorView({
       {
         key: "Control-q",
         run: thingAtPoint,
+      },
+      {
+        key: "Control-c", // Space c needs to be done in normal only
+        run: checkListItem,
       },
     ]),
     // indentedLineWrap,
