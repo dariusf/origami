@@ -7,6 +7,7 @@ import { vim, Vim } from "./vim/index.ts";
 // import { html } from "@codemirror/lang-html";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 
+import { syntaxTree } from "@codemirror/language";
 import {
   // ViewUpdate,
   // DecorationSet,
@@ -33,6 +34,7 @@ import {
   bracketMatching,
   foldGutter,
   foldKeymap,
+  toggleFold,
 } from "@codemirror/language";
 
 // import { dracula, noctisLilac } from "thememirror";
@@ -43,6 +45,8 @@ import {
   defaultKeymap,
   history,
   historyKeymap,
+  indentMore,
+  indentLess,
 } from "@codemirror/commands";
 
 // import {
@@ -88,12 +92,19 @@ kalsjld
 ### asldj
 kljhygyuguyd`;
 
-doc = `
+doc = `Move your cursor into a widget to reveal the underlying text:
+
+[[a]]
+
+# This is a heading
+
+Press Tab while your cursor is on a heading to fold it.
+
+When not on a heading, Tab indents/dedents (try it here).
+
 - [ ] a
 - [ ] b
 `;
-
-doc = `Move your cursor into the following text: [[a]]`;
 
 const basicSetup = (() => [
   // lineNumbers(),
@@ -124,6 +135,33 @@ const basicSetup = (() => [
   ]),
 ])();
 
+export const thingAtPoint = ({ state }) => {
+  const pos = state.selection.ranges[0].from + 1;
+  const tree = syntaxTree(state).resolveInner(pos);
+  const kind = tree.type.name;
+  console.log(kind);
+  return true;
+};
+
+export function foldConditionally(indent) {
+  return (view) => {
+    const { state } = view;
+    const pos = state.selection.ranges[0].from + 1;
+    const tree = syntaxTree(state).resolveInner(pos);
+    const kind = tree.type.name;
+    if (kind.startsWith("ATXHeading")) {
+      toggleFold(view);
+    } else {
+      if (indent) {
+        indentMore(view);
+      } else {
+        indentLess(view);
+      }
+    }
+    return true;
+  };
+}
+
 const editor = new EditorView({
   doc,
   extensions: [
@@ -133,7 +171,18 @@ const editor = new EditorView({
     EditorView.lineWrapping,
     basicSetup,
     // https://codemirror.net/examples/tab/
-    keymap.of([indentWithTab]),
+
+    keymap.of([
+      {
+        key: "Tab",
+        run: foldConditionally(true),
+        shift: foldConditionally(false),
+      },
+      {
+        key: "Control-q",
+        run: thingAtPoint,
+      },
+    ]),
     // indentedLineWrap,
     // theme,
     vim(),
