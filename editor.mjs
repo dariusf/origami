@@ -1,6 +1,7 @@
 // indent wrap
 
-import { vim, Vim } from "@replit/codemirror-vim";
+// import { vim, Vim } from "@replit/codemirror-vim";
+import { vim, Vim } from "../codemirror-vim";
 
 // import { EditorView } from "codemirror";
 // import { html } from "@codemirror/lang-html";
