@@ -30,32 +30,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          path: origami
-
-      # mirror dev layout: put dependency in a parallel subdirectory
-      - name: Checkout vim
-        uses: actions/checkout@v5
-        with:
-          repository: dariusf/codemirror-vim
-          path: codemirror-vim
-      - name: Install dependencies of vim
-        run: |
-          (cd codemirror-vim && yarn && yarn link)
 
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          # cache: "npm"
-          # cache-dependency-path: origami/package-lock.json
+          cache: "npm"
 
       - name: Install dependencies
-        working-directory: ./origami
         run: |
-          yarn link @replit/codemirror-vim
-          yarn
-          yarn run build
+          npm ci
+          npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -63,7 +48,7 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           # Upload dist folder
-          path: "./origami/dist"
+          path: "./dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

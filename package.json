@@ -4,7 +4,6 @@
     "@codemirror/lang-markdown": "^6.5.0",
     "@codemirror/state": "^6.5.3",
     "@codemirror/view": "^6.39.8",
-    "@replit/codemirror-vim": "file:../codemirror-vim",
     "codemirror": "^6.0.2",
     "vite": "^7.3.0"
   },
