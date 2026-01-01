@@ -1744,7 +1744,7 @@ export function initVim(CM) {
       if (command.isEdit) {
         this.recordLastEdit(vim, inputState, command);
       }
-      actions[command.action](cm, actionArgs, vim);
+      actions[command.action].call(actions, cm, actionArgs, vim);
     },
     /** @arg {CodeMirrorV} cm @arg {vimState} vim @arg {import("./types").searchCommand} command*/
     processSearch: function(cm, vim, command) {
