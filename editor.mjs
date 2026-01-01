@@ -51,6 +51,8 @@ import {
   historyKeymap,
   indentMore,
   indentLess,
+  moveLineDown,
+  moveLineUp,
 } from "@codemirror/commands";
 
 // import {
@@ -109,6 +111,7 @@ When not on a heading, Tab indents/dedents (try it here).
 - [ ] This is a checkbox list
 - [ ] Press Ctrl+C or <Space>c with your cursor on an item to toggle its checkbox
 - [ ] Pressing o in vim mode will extend lists too!
+- [ ] Reorder items using Cmd+j and Cmd+k
 `;
 
 const basicSetup = (() => [
@@ -202,6 +205,43 @@ export const checkListItem = (view) => {
   return true;
 };
 
+function reorderList(up) {
+  return (view) => {
+    const { state, dispatch } = view;
+    const pos = state.selection.ranges[0].from + 1;
+    const tree = syntaxTree(state).resolveInner(pos);
+    const kind = tree.type.name;
+
+    if (kind === "Task") {
+      const thisItem = tree.parent;
+      const otherItem = up ? thisItem.prevSibling : thisItem.nextSibling;
+      if (otherItem) {
+        const thisItemText = view.state.doc.sliceString(
+          thisItem.from,
+          thisItem.to
+        );
+        const otherItemText = view.state.doc.sliceString(
+          otherItem.from,
+          otherItem.to
+        );
+        const point = state.selection.ranges[0].from;
+        const col = point - thisItem.from;
+        const newCursorPos = up
+          ? otherItem.from + col
+          : thisItem.from + otherItemText.length + col + 1;
+        dispatch({
+          changes: [
+            { from: thisItem.from, to: thisItem.to, insert: otherItemText },
+            { from: otherItem.from, to: otherItem.to, insert: thisItemText },
+          ],
+          selection: { anchor: newCursorPos, head: newCursorPos },
+        });
+      }
+    }
+    return true;
+  };
+}
+
 function defineVimBinding(keybinding, mode, command) {
   const indirect = false;
   const name = command.name;
@@ -259,6 +299,7 @@ const defineListAwareO = (function () {
 
 Vim.unmap("<Space>"); // default space mapping has no context property
 defineVimBinding("<Space>c", "normal", checkListItem);
+defineVimBinding("<Space>?", "normal", thingAtPoint);
 defineListAwareO();
 
 const editor = new EditorView({
@@ -277,13 +318,23 @@ const editor = new EditorView({
         run: foldConditionally(true),
         shift: foldConditionally(false),
       },
-      {
-        key: "Control-q",
-        run: thingAtPoint,
-      },
+      // {
+      //   key: "Space ?",
+      //   run: thingAtPoint,
+      // },
       {
         key: "Control-c", // Space c needs to be done in normal only
         run: checkListItem,
+      },
+      {
+        key: "Mod-j",
+        run: reorderList(false),
+        // run: moveLineDown, // only works for single-line items
+      },
+      {
+        key: "Mod-k",
+        // run: moveLineUp,
+        run: reorderList(true),
       },
     ]),
     // indentedLineWrap,
