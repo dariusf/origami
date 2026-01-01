@@ -1,5 +1,5 @@
 import { EditorSelection, Text, MapMode, ChangeDesc } from "@codemirror/state"
-import { StringStream, matchBrackets, indentUnit, ensureSyntaxTree, foldCode } from "@codemirror/language"
+import { StringStream, matchBrackets, indentUnit, ensureSyntaxTree, foldCode, foldedRanges } from "@codemirror/language"
 import { EditorView, runScopeHandlers, ViewUpdate } from "@codemirror/view"
 import { RegExpCursor, setSearchQuery, SearchQuery } from "@codemirror/search"
 import {
@@ -246,6 +246,16 @@ export class CodeMirror {
       line = line.line;
     }
     var offset = indexFromPos(this.cm6.state.doc, { line, ch: ch || 0 })
+
+    // Ensure that cursor doesn't go inside folded ranges
+    const ranges = foldedRanges(this.cm6.state);
+    const oldOffset = this.cm6.state.selection.main.head;
+    const forward = offset >= oldOffset;
+    const cursor = ranges.iter(offset);
+    if (cursor.value && cursor.from < offset && offset < cursor.to) {
+      offset = forward ? cursor.to : cursor.from;
+    }
+
     this.cm6.dispatch({ selection: { anchor: offset } }, { scrollIntoView: !this.curOp })
     if (this.curOp && !this.curOp.isVimOp)
       this.onBeforeEndOperation();
@@ -1111,4 +1121,3 @@ function hardWrap(cm: CodeMirror, options: hardWrapOptions) {
     }
   }
 }
-
