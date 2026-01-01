@@ -11,7 +11,7 @@ import {
   insertNewlineContinueMarkupCommand,
 } from "@codemirror/lang-markdown";
 
-import { syntaxTree } from "@codemirror/language";
+import { syntaxTree, foldedRanges } from "@codemirror/language";
 import {
   // ViewUpdate,
   // DecorationSet,
@@ -351,6 +351,7 @@ const editor = new EditorView({
 
     // obsidian,
     // bullets,
+    EditorView.atomicRanges.of((v) => foldedRanges(v.state)),
   ],
   parent: document.body,
 });
