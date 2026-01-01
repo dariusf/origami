@@ -80,25 +80,7 @@ import {
   preventDeletion,
 } from "./experiments/txfilter.mjs";
 
-// window.syntaxTree = syntaxTree;
-// paste in console
-// syntaxTree(state).iterate({from:0, to:100, enter: node => console.log(node.name, node.from, node.to)})
-
-let doc = `# todos
-a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long line
-
-## asd
-aasd
-### asd
-hahah
-# sdk
-asd
-## asdkl
-kalsjld
-### asldj
-kljhygyuguyd`;
-
-doc = `Move your cursor into a widget to reveal the underlying text:
+let doc = `Move your cursor into a widget to reveal the underlying text:
 
 [[a]]
 
@@ -109,9 +91,21 @@ Press Tab while your cursor is on a heading to fold it.
 When not on a heading, Tab indents/dedents (try it here).
 
 - [ ] This is a checkbox list
-- [ ] Press Ctrl+C or <Space>c with your cursor on an item to toggle its checkbox
+- [ ] Press Ctrl+C or \`<Space>c\` with your cursor on an item to toggle its checkbox
 - [ ] Pressing o in vim mode will extend lists too!
 - [ ] Reorder items using Cmd+j and Cmd+k
+- [ ] Navigate structurally around headings using gh, gj, and gk
+
+# Another heading
+
+## Some
+
+## Child
+
+## Headings
+
+A very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long line
+
 `;
 
 const basicSetup = (() => [
@@ -149,14 +143,69 @@ function getThingAtPoint({ state }) {
   return tree;
 }
 
-export const thingAtPoint = (view) => {
+function logThingAtPoint(view) {
   const tree = getThingAtPoint(view);
   const kind = tree.type.name;
   console.log(kind);
   return true;
-};
+}
 
-export function foldConditionally(indent) {
+function isBlockElt(e) {
+  switch (e) {
+    case "BulletList":
+    case "Paragraph":
+      return true;
+    default:
+      return e.startsWith("ATXHeading");
+  }
+}
+
+function goToParentHeading(view) {
+  // TODO bug if at document, in between elements
+  const { dispatch } = view;
+  let tree = getThingAtPoint(view);
+  while (tree && tree.type && !isBlockElt(tree.type.name)) {
+    tree = tree.parent;
+  }
+  while (tree && tree.type && !tree.type.name.startsWith("ATXHeading")) {
+    tree = tree.prevSibling;
+  }
+  if (tree) {
+    dispatch({
+      selection: { anchor: tree.from, head: tree.from },
+    });
+  }
+  return true;
+}
+
+function goToSibling(forward) {
+  return (view) => {
+    const { dispatch } = view;
+    let tree = getThingAtPoint(view);
+    while (tree && tree.type && !isBlockElt(tree.type.name)) {
+      tree = tree.parent;
+    }
+    // TODO when on a heading, this does not move to a sibling of the same level
+    tree = forward ? tree?.nextSibling : tree?.prevSibling;
+    if (tree) {
+      dispatch({
+        selection: { anchor: tree.from, head: tree.from },
+      });
+    }
+    return true;
+  };
+}
+
+// make sure these have names, as they are used in vim bindings
+function goToSiblingForward(view) {
+  return goToSibling(true)(view);
+}
+
+function goToSiblingBack(view) {
+  return goToSibling(false)(view);
+}
+
+function foldConditionally(indent) {
   return (view) => {
     const { state } = view;
     const pos = state.selection.ranges[0].from + 1;
@@ -177,7 +226,7 @@ export function foldConditionally(indent) {
 
 window.debugAST = function (node) {};
 
-export const checkListItem = (view) => {
+function checkListItem(view) {
   const { state, dispatch } = view;
   const pos = state.selection.ranges[0].from + 1;
   const tree = syntaxTree(state).resolveInner(pos);
@@ -203,7 +252,7 @@ export const checkListItem = (view) => {
     handleTaskMarker(tree.firstChild);
   }
   return true;
-};
+}
 
 function reorderList(up) {
   return (view) => {
@@ -299,8 +348,13 @@ const defineListAwareO = (function () {
 
 Vim.unmap("<Space>"); // default space mapping has no context property
 defineVimBinding("<Space>c", "normal", checkListItem);
-defineVimBinding("<Space>?", "normal", thingAtPoint);
+defineVimBinding("<Space>?", "normal", logThingAtPoint);
+
 defineListAwareO();
+
+defineVimBinding("gh", "normal", goToParentHeading);
+defineVimBinding("gj", "normal", goToSiblingForward);
+defineVimBinding("gk", "normal", goToSiblingBack);
 
 const editor = new EditorView({
   doc,
