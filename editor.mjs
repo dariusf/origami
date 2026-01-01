@@ -103,7 +103,7 @@ Press Tab while your cursor is on a heading to fold it.
 When not on a heading, Tab indents/dedents (try it here).
 
 - [ ] This is a checkbox list
-- [ ] Press Ctrl+C with your cursor on an item to toggle its checkbox
+- [ ] Press Ctrl+C or <Space>c with your cursor on an item to toggle its checkbox
 `;
 
 const basicSetup = (() => [
@@ -192,6 +192,33 @@ export const checkListItem = (view) => {
   }
   return true;
 };
+
+function defineVimBinding(keybinding, mode, command) {
+  const indirect = false;
+  const name = command.name;
+  if (indirect) {
+    Vim.defineEx(name, name, (cm) => {
+      const editor = cm.cm6;
+      command(editor);
+    });
+    Vim.map(keybinding, `:${name}<cr>`);
+  } else {
+    Vim.defineAction(name, (cm, _actionArgs, _vim) => {
+      const editor = cm.cm6;
+      command(editor);
+    });
+    Vim.mapCommand(
+      keybinding,
+      "action",
+      name,
+      {}, // actionArgs
+      { context: mode }
+    );
+  }
+}
+
+Vim.unmap("<Space>"); // default space mapping has no context property
+defineVimBinding("<Space>c", "normal", checkListItem);
 
 const editor = new EditorView({
   doc,
