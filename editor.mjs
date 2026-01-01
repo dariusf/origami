@@ -5,7 +5,11 @@ import { vim, Vim } from "./vim/index.ts";
 
 // import { EditorView } from "codemirror";
 // import { html } from "@codemirror/lang-html";
-import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
+import {
+  markdown,
+  markdownLanguage,
+  insertNewlineContinueMarkupCommand,
+} from "@codemirror/lang-markdown";
 
 import { syntaxTree } from "@codemirror/language";
 import {
@@ -104,6 +108,7 @@ When not on a heading, Tab indents/dedents (try it here).
 
 - [ ] This is a checkbox list
 - [ ] Press Ctrl+C or <Space>c with your cursor on an item to toggle its checkbox
+- [ ] Pressing o in vim mode will extend lists too!
 `;
 
 const basicSetup = (() => [
@@ -135,9 +140,14 @@ const basicSetup = (() => [
   ]),
 ])();
 
-export const thingAtPoint = ({ state }) => {
+function getThingAtPoint({ state }) {
   const pos = state.selection.ranges[0].from + 1;
   const tree = syntaxTree(state).resolveInner(pos);
+  return tree;
+}
+
+export const thingAtPoint = (view) => {
+  const tree = getThingAtPoint(view);
   const kind = tree.type.name;
   console.log(kind);
   return true;
@@ -169,7 +179,6 @@ export const checkListItem = (view) => {
   const pos = state.selection.ranges[0].from + 1;
   const tree = syntaxTree(state).resolveInner(pos);
   const kind = tree.type.name;
-  // console.log(tree);
 
   function handleTaskMarker(tree) {
     const checked =
@@ -217,8 +226,40 @@ function defineVimBinding(keybinding, mode, command) {
   }
 }
 
+const defineListAwareO = (function () {
+  const mdContinueListCommand = insertNewlineContinueMarkupCommand({
+    nonTightLists: false,
+  });
+  return () => {
+    Vim.unmap("o", "normal");
+    const name = "conditionalO";
+    Vim.defineAction(name, function (cm, actionArgs, vim) {
+      const kind = getThingAtPoint(cm.cm6).type.name;
+      switch (kind) {
+        case "Task":
+        case "TaskMarker":
+        case "BulletList":
+        case "ListItem":
+          Vim.handleKey(cm, "$", "macro");
+          Vim.handleKey(cm, "a", "macro");
+          mdContinueListCommand(cm.cm6);
+          break;
+
+        default:
+          this.newLineAndEnterInsertMode(
+            cm,
+            { ...actionArgs, after: true },
+            vim
+          );
+      }
+    });
+    Vim.mapCommand("o", "action", name, {}, { context: "normal" });
+  };
+})();
+
 Vim.unmap("<Space>"); // default space mapping has no context property
 defineVimBinding("<Space>c", "normal", checkListItem);
+defineListAwareO();
 
 const editor = new EditorView({
   doc,
