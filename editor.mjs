@@ -346,70 +346,70 @@ const defineListAwareO = (function () {
   };
 })();
 
-Vim.unmap("<Space>"); // default space mapping has no context property
-defineVimBinding("<Space>c", "normal", checkListItem);
-defineVimBinding("<Space>?", "normal", logThingAtPoint);
+export function createEditor() {
+  Vim.unmap("<Space>"); // default space mapping has no context property
+  defineVimBinding("<Space>c", "normal", checkListItem);
+  defineVimBinding("<Space>?", "normal", logThingAtPoint);
 
-defineListAwareO();
+  defineListAwareO();
 
-defineVimBinding("gh", "normal", goToParentHeading);
-defineVimBinding("gj", "normal", goToSiblingForward);
-defineVimBinding("gk", "normal", goToSiblingBack);
+  defineVimBinding("gh", "normal", goToParentHeading);
+  defineVimBinding("gj", "normal", goToSiblingForward);
+  defineVimBinding("gk", "normal", goToSiblingBack);
 
-const editor = new EditorView({
-  doc,
-  extensions: [
-    // dracula,
-    oneDark,
-    // noctisLilac,
-    EditorView.lineWrapping,
-    basicSetup,
-    // https://codemirror.net/examples/tab/
+  const editor = new EditorView({
+    doc,
+    extensions: [
+      // dracula,
+      oneDark,
+      // noctisLilac,
+      EditorView.lineWrapping,
+      basicSetup,
+      // https://codemirror.net/examples/tab/
 
-    keymap.of([
-      {
-        key: "Tab",
-        run: foldConditionally(true),
-        shift: foldConditionally(false),
-      },
-      // {
-      //   key: "Space ?",
-      //   run: thingAtPoint,
-      // },
-      {
-        key: "Control-c", // Space c needs to be done in normal only
-        run: checkListItem,
-      },
-      {
-        key: "Mod-j",
-        run: reorderList(false),
-        // run: moveLineDown, // only works for single-line items
-      },
-      {
-        key: "Mod-k",
-        // run: moveLineUp,
-        run: reorderList(true),
-      },
-    ]),
-    // indentedLineWrap,
-    // theme,
-    vim(),
-    // html(),
-    markdown({ base: markdownLanguage }), // GFM
-    // adds a ridiculous number of lines
-    // scrollPastEnd(),
-    // checkboxPlugin,
-    placeholders,
-    // noDeletionFirstLast,
-    // preventDeletion,
+      keymap.of([
+        {
+          key: "Tab",
+          run: foldConditionally(true),
+          shift: foldConditionally(false),
+        },
+        // {
+        //   key: "Space ?",
+        //   run: thingAtPoint,
+        // },
+        {
+          key: "Control-c", // Space c needs to be done in normal only
+          run: checkListItem,
+        },
+        {
+          key: "Mod-j",
+          run: reorderList(false),
+          // run: moveLineDown, // only works for single-line items
+        },
+        {
+          key: "Mod-k",
+          // run: moveLineUp,
+          run: reorderList(true),
+        },
+      ]),
+      // indentedLineWrap,
+      // theme,
+      vim(),
+      // html(),
+      markdown({ base: markdownLanguage }), // GFM
+      // adds a ridiculous number of lines
+      // scrollPastEnd(),
+      // checkboxPlugin,
+      placeholders,
+      // noDeletionFirstLast,
+      // preventDeletion,
 
-    // obsidian,
-    // bullets,
-    EditorView.atomicRanges.of((v) => foldedRanges(v.state)),
-  ],
-  parent: document.body,
-});
+      // obsidian,
+      // bullets,
+      EditorView.atomicRanges.of((v) => foldedRanges(v.state)),
+    ],
+    parent: document.body,
+  });
 
-document.body.onload = function () {
-  editor.focus();
-};
+  return editor;
+}
